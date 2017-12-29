@@ -9,7 +9,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 #TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
 TOKEN = os.environ['BOT_TOKEN']
-WELCOME_MSG = 'Hi, %s! Welcome to moodify!\nSend a picture to begin' %str(update.message.from_user.username)
 HELP_MSG = 'Send a picture to begin'
 
 def is_image(url):
@@ -21,10 +20,9 @@ def get_input(bot, update):
         update.message.reply_text("Thinking hard...")
         logger.info("Photo received from %s" % user.first_name)
         photo_id = update.message.photo[-1].file_id
-        json_url = ('https://api.telegram.org/bot' + TOKEN + 
-                    '/getFile?file_id=' + photo_id)
-        logger.info(update.message.photo[-1].file_size)
+        json_url = ('https://api.telegram.org/bot' + TOKEN + '/getFile?file_id=' + photo_id)
         
+		logger.info(update.message.photo[-1].file_size)
         logger.info(requests.get(json_url).json())
 
         file_path = (requests.get(json_url).json())['result']['file_path']
@@ -35,7 +33,7 @@ def get_input(bot, update):
         update.message.reply_text(HELP_MSG)
 	
 def start(bot, update):
-    update.message.reply_text(WELCOME_MSG)
+    update.message.reply_text('Hi, %s! Welcome to moodify!\nSend a picture to begin' %str(update.message.from_user.username))
 
 
 def help(bot, update):
