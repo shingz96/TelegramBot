@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 TOKEN = os.environ['BOT_TOKEN']
 
 def start(bot, update):
-    update.message.reply_text('Hi!')
+    update.message.reply_text('Hi!', str(update.message.from_user.username))
 
 
 def help(bot, update):
