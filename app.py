@@ -30,7 +30,7 @@ def get_input(bot, update):
         logger.info(update.message.photo[-1])
         update.message.reply_photo(update.message.photo[-1])
 		
-    elif not is_image(update.message.text):
+    else:
         update.message.reply_text(HELP_MSG)
 	
 def start(bot, update):
