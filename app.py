@@ -7,11 +7,11 @@ from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Updater, Fi
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
-
+#TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
+TOKEN = os.environ['BOT_TOKEN']
 
 def start(bot, update):
-    update.message.reply_text('welcome MESSAGE')
+    update.message.reply_text('Hi!')
 
 
 def help(bot, update):
