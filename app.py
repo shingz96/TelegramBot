@@ -15,7 +15,7 @@ def start(bot, update):
 
 
 def help(bot, update):
-    update.message.reply_text('help message')
+    update.message.reply_text('help you message')
 
 
 def echo(bot, update):
