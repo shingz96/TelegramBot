@@ -27,6 +27,8 @@ def get_input(bot, update):
         file_path = (requests.get(json_url).json())['result']['file_path']
         photo_url = 'https://api.telegram.org/file/bot' + TOKEN + "/" + file_path
         logger.info(photo_url)
+        update.message.reply_photo(photo_url)
+		
     elif not is_image(update.message.text):
         update.message.reply_text(HELP_MSG)
 	
