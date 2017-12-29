@@ -27,7 +27,8 @@ def get_input(bot, update):
         file_path = (requests.get(json_url).json())['result']['file_path']
         photo_url = 'https://api.telegram.org/file/bot' + TOKEN + "/" + file_path
         logger.info(photo_url)
-        update.message.reply_photo(photo_url)
+        logger.info(pdate.message.photo[-1])
+		update.message.reply_photo(update.message.photo[-1])
 		
     elif not is_image(update.message.text):
         update.message.reply_text(HELP_MSG)
@@ -65,7 +66,7 @@ def setup(webhook_url=None):
         dp.add_handler(CommandHandler("help", help))
 
         # on noncommand i.e message - echo the message on Telegram
-        dp.add_handler(MessageHandler(Filters.text | Filters.photo, get_input))
+        dp.add_handler(MessageHandler(Filters.all, get_input))
 
         # log all errors
         dp.add_error_handler(error)
