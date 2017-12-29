@@ -1,4 +1,4 @@
-import logging,os
+import logging,os,requests
 from queue import Queue
 from threading import Thread
 from telegram import Bot
@@ -31,7 +31,7 @@ def get_input(bot, update):
         update.message.reply_text(HELP_MSG)
 	
 def start(bot, update):
-    update.message.reply_text('Hi, %s! Welcome to moodify!\nSend a picture to begin' %str(update.message.from_user.username))
+    update.message.reply_text('Hi, %s!\nSend a picture to begin' %str(update.message.from_user.first_name))
 
 
 def help(bot, update):
