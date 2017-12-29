@@ -9,13 +9,37 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 #TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
 TOKEN = os.environ['BOT_TOKEN']
+WELCOME_MSG = 'Hi, %s! Welcome to moodify!\nSend a picture to begin' %str(update.message.from_user.username)
+HELP_MSG = 'Send a picture to begin'
 
+def is_image(url):
+    return url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png') 
+
+def get_input(bot, update):
+    user = update.message.from_user
+    if update.message.photo:
+        update.message.reply_text("Thinking hard...")
+        logger.info("Photo received from %s" % user.first_name)
+        photo_id = update.message.photo[-1].file_id
+        json_url = ('https://api.telegram.org/bot' + TOKEN + 
+                    '/getFile?file_id=' + photo_id)
+        logger.info(update.message.photo[-1].file_size)
+        
+        logger.info(requests.get(json_url).json())
+
+        file_path = (requests.get(json_url).json())['result']['file_path']
+        photo_url = 'https://api.telegram.org/file/bot' + TOKEN + "/" + file_path
+        logger.info(photo_url)
+
+    elif not is_image(update.message.text):
+        update.message.reply_text(HELP_MSG)
+	
 def start(bot, update):
-    update.message.reply_text('Hi! %s' %str(update.message.from_user.username))
+    update.message.reply_text(WELCOME_MSG)
 
 
 def help(bot, update):
-    update.message.reply_text('help you message')
+    update.message.reply_text(HELP_MSG)
 
 
 def echo(bot, update):
@@ -43,7 +67,7 @@ def setup(webhook_url=None):
         dp.add_handler(CommandHandler("help", help))
 
         # on noncommand i.e message - echo the message on Telegram
-        dp.add_handler(MessageHandler(Filters.text, echo))
+        dp.add_handler(MessageHandler(Filters.text | Filters.photo, get_input))
 
         # log all errors
         dp.add_error_handler(error)
