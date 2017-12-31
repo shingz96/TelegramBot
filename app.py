@@ -22,9 +22,13 @@ def process_ocr(url):
         f.write(data)
     ocr = OCRSpace()
     result = ocr.ocr_file(img)['ParsedResults'][0]['ParsedText']	
-    logger.info('OCR result: %s' %result)
+    l = [x.strip() for x in result.split(' ') if x.strip() != '']
+    string = ''
+    for word in l:
+        string += word + ' '	 
+    logger.info('OCR result: %s' %string) 		
     os.remove(img)
-    return result
+    return string.strip()
 	
 def get_input(bot, update):
     user = update.message.from_user
