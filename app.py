@@ -1,4 +1,4 @@
-import logging,os,requests
+import logging,os,requests,petrol
 from ocr import OCRSpace
 from queue import Queue
 from threading import Thread
@@ -46,7 +46,11 @@ def get_input(bot, update):
         update.message.reply_text(process_ocr(photo_url))		
     else:
         update.message.reply_text(HELP_MSG)
-	
+
+def petrol_price(bot,update):
+    info = petrol.get_petrol_info()
+    update.message.reply_text('This is the latest petrol price.\n%s\n%s' %(info[1],info[0]))
+        
 def start(bot, update):
     update.message.reply_text('Hi, %s!\nSend a picture to begin' %str(update.message.from_user.first_name))
 
@@ -78,6 +82,7 @@ def setup(webhook_url=None):
         dp = updater.dispatcher
         dp.add_handler(CommandHandler("start", start))
         dp.add_handler(CommandHandler("help", help))
+        dp.add_handler(CommandHandler("petrol", petrol_price))
 
         # on noncommand i.e message - echo the message on Telegram
         dp.add_handler(MessageHandler(Filters.all, get_input))
