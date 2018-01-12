@@ -32,4 +32,4 @@ def get_petrol_info():
         petrols.append(Petrol(type[i].get_text(),price[i].get_text(),diff[i].get_text()))
     return last_update.get_text(),petrols
 
-print(get_petrol_info()[0])
+print(get_petrol_info())
