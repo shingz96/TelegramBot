@@ -51,9 +51,10 @@ def petrol_price(bot,update):
     info = petrol.get_petrol_info()
     details = ''
     for i in range(0,len(info[1])):
-        if info[1][i].diff > 0:
+        diff = info[1][i].diff
+        if int(diff) > 0:
             diff = '⬆️ ' + info[1][i].diff
-        elif info[1][i].diff < 0:
+        elif int(diff) < 0:
             diff = '⬇️ ' + info[1][i].diff
         else:
             diff = '↔️ ' + info[1][i].diff
