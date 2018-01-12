@@ -62,7 +62,7 @@ def petrol_price(bot,update):
         br = ''
         if i<2:
             br = '\n'
-        details = details + '%s : %s' %(info[1][i].type,info[1][i].price,diff) + br
+        details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br
     update.message.reply_text('This is the Latest Petrol Price %s.\n%s' %(info[0],details))
         
 def start(bot, update):
