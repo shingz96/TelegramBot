@@ -1,4 +1,5 @@
 import logging,os,requests,petrol
+from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
 from threading import Thread
@@ -10,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
 #TOKEN = os.environ['BOT_TOKEN']
-HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price'
+HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
     return url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png') 
@@ -29,7 +30,23 @@ def process_ocr(url):
     logger.info('OCR result: %s' %string) 		
     os.remove(img)
     return string.strip()
-	
+
+def thinking(func):
+    @wraps(func)
+    def wrapper(bot,update,*args, **kwargs):
+        update.chat.send_action(action=telegram.ChatAction.TYPING)
+        return func(bot,update,*args, **kwargs)
+    return wrapper
+
+def build_menu(buttons,n_cols,header_buttons=None,footer_buttons=None):
+    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, header_buttons)
+    if footer_buttons:
+        menu.append(footer_buttons)
+    return menu
+    
+@thinking   
 def get_input(bot, update):
     user = update.message.from_user
     if update.message.photo:
@@ -47,6 +64,7 @@ def get_input(bot, update):
     else:
         update.message.reply_text(HELP_MSG)
 
+@thinking        
 def petrol_price(bot,update):
     info = petrol.get_petrol_info()
     details = ''
@@ -64,18 +82,37 @@ def petrol_price(bot,update):
             br = '\n'
         details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br
     update.message.reply_text('This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(info[0],details))
-        
+
+@thinking
+def zodiac_luck(bot,update):
+    zodiac = [
+    '♈ Aries\n白羊座 (3.21-4.19)',
+    '♉ Taurus\n金牛座 (4.20-5.20)',
+    '♊ Gemini\n双子座 (5.21-6.21)',
+    '♋ Cancer\n巨蟹座 (6.22-7.22)',
+    '♌ Leo\n狮子座 (7.23-8.22)',
+    '♍ Virgo\n处女座 (8.23-9.22)',
+    '♎ Libra\n天秤座 (9.23-10.23)',
+    '♏ Scorpio\n天蝎座 (10.24-11.22)',
+    '♐ Sagittarius\n射手座 (11.23-12.21)',
+    '♑ Capricorn\n摩羯座 (12.22-1.19)',
+    '♒ Aquarius\n水瓶座 (1.20-2.18)',
+    '♓ Pisces\n双鱼座 (2.19-3.20)'
+    ]
+    button_list = [InlineKeyboardButton(x, url='http://www.xzw.com/fortune/%s' %(x.split(' ')[1].split('\n')[0]) for x in zodiac]
+    update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=3))
+    
+@thinking      
 def start(bot, update):
     update.message.reply_text('Hi, %s!\nSend a picture contain text to begin OCR or use /help to see more 😃' %str(update.message.from_user.first_name))
 
-
+@thinking      
 def help(bot, update):
     update.message.reply_text('Hi, %s!\n' %str(update.message.from_user.first_name) +HELP_MSG)
 
-
+@thinking    
 def echo(bot, update):
     update.message.reply_text(update.message.text)
-
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
@@ -97,6 +134,7 @@ def setup(webhook_url=None):
         dp.add_handler(CommandHandler("start", start))
         dp.add_handler(CommandHandler("help", help))
         dp.add_handler(CommandHandler("petrol", petrol_price))
+        dp.add_handler(CommandHandler("luck", zodiac_luck))
 
         # on noncommand i.e message - echo the message on Telegram
         dp.add_handler(MessageHandler(Filters.all, get_input))
