@@ -1,4 +1,4 @@
-import logging,os,requests,json,petrol,zodiac,
+import logging,os,requests,json,petrol,zodiac
 from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
