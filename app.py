@@ -9,8 +9,7 @@ from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Updater, Fi
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
-#TOKEN = os.environ['BOT_TOKEN']
+TOKEN = os.environ['BOT_TOKEN']
 HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
@@ -100,7 +99,7 @@ def zodiac_luck(bot,update):
     '♓ Pisces\n双鱼座 (2.19-3.20)'
     ]
     button_list = [InlineKeyboardButton(x, url='http://www.xzw.com/fortune/%s' %(x.split(' ')[1].split('\n')[0])) for x in zodiac]
-    update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=3))
+    update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=3)))
     
 @thinking      
 def start(bot, update):
