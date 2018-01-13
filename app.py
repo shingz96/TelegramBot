@@ -99,7 +99,7 @@ def zodiac_luck(bot,update):
     '♒ Aquarius\n水瓶座 (1.20-2.18)',
     '♓ Pisces\n双鱼座 (2.19-3.20)'
     ]
-    button_list = [InlineKeyboardButton(x, url='http://www.xzw.com/fortune/%s' %(x.split(' ')[1].split('\n')[0]) for x in zodiac]
+    button_list = [InlineKeyboardButton(x, url='http://www.xzw.com/fortune/%s' %(x.split(' ')[1].split('\n')[0])) for x in zodiac]
     update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=3))
     
 @thinking      
