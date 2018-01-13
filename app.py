@@ -33,7 +33,7 @@ def process_ocr(url):
 def thinking(func):
     @wraps(func)
     def wrapper(bot,update,*args, **kwargs):
-        update.chat.send_action(action=telegram.ChatAction.TYPING)
+        bot.send_chat_action(update.message.chat_id,action=telegram.ChatAction.TYPING)
         return func(bot,update,*args, **kwargs)
     return wrapper
 
