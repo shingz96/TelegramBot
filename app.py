@@ -3,7 +3,7 @@ from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
 from threading import Thread
-from telegram import Bot
+from telegram import Bot, ChatAction
 from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Updater, Filters
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,7 +33,7 @@ def process_ocr(url):
 def thinking(func):
     @wraps(func)
     def wrapper(bot,update,*args, **kwargs):
-        bot.send_chat_action(update.message.chat_id,action=telegram.ChatAction.TYPING)
+        bot.send_chat_action(update.message.chat_id,action=ChatAction.TYPING)
         return func(bot,update,*args, **kwargs)
     return wrapper
 
