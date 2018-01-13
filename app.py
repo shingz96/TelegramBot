@@ -10,7 +10,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
 #TOKEN = os.environ['BOT_TOKEN']
-HELP_MSG = '🌄 Send a picture to begin OCR\n🔹 /petrol Get Latest M\'sia Petrol Price'
+HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price'
 
 def is_image(url):
     return url.endswith('.jpg') or url.endswith('.jpeg') or url.endswith('.png') 
@@ -63,14 +63,14 @@ def petrol_price(bot,update):
         if i<2:
             br = '\n'
         details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br
-    update.message.reply_text('This is the Latest Petrol Price %s.\n%s' %(info[0],details))
+    update.message.reply_text('This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(info[0],details))
         
 def start(bot, update):
     update.message.reply_text('Hi, %s!\nSend a picture contain text to begin OCR or use /help to see more 😃' %str(update.message.from_user.first_name))
 
 
 def help(bot, update):
-    update.message.reply_text(HELP_MSG)
+    update.message.reply_text('Hi, %s!\n' %str(update.message.from_user.first_name) +HELP_MSG)
 
 
 def echo(bot, update):
