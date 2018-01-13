@@ -1,10 +1,10 @@
-import logging,os,requests,petrol
+import logging,os,requests,json,petrol,zodiac,
 from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
 from threading import Thread
-from telegram import Bot, ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Updater, Filters
+from telegram import Bot, ChatAction, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram.ext import Dispatcher, CommandHandler, MessageHandler, CallbackQueryHandler, Updater, Filters
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -82,28 +82,24 @@ def petrol_price(bot,update):
         details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br
     update.message.reply_text('This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(info[0],details))
 
-@thinking
-def zodiac_luck(bot,update):
-    zodiac = [
-    '♈ Aries\n白羊座 (3.21-4.19)',
-    '♉ Taurus\n金牛座 (4.20-5.20)',
-    '♊ Gemini\n双子座 (5.21-6.21)',
-    '♋ Cancer\n巨蟹座 (6.22-7.22)',
-    '♌ Leo\n狮子座 (7.23-8.22)',
-    '♍ Virgo\n处女座 (8.23-9.22)',
-    '♎ Libra\n天秤座 (9.23-10.23)',
-    '♏ Scorpio\n天蝎座 (10.24-11.22)',
-    '♐ Sagittarius\n射手座 (11.23-12.21)',
-    '♑ Capricorn\n摩羯座 (12.22-1.19)',
-    '♒ Aquarius\n水瓶座 (1.20-2.18)',
-    '♓ Pisces\n双鱼座 (2.19-3.20)'
-    ]
-    button_list = [InlineKeyboardButton(x, url='http://www.xzw.com/fortune/%s' %(x.split(' ')[1].split('\n')[0])) for x in zodiac]
+def luck(bot,update):
+    zodiacs = zodiac.zodiac_json()
+    button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), data=x) for x in zodiac.zodiac_simple_list()]
     update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
+
+@thinking 
+def handle_luck_callback(bot,update):
+    if update.callback_query.data == 'back':
+        zodiacs = zodiac.zodiac_json()
+        button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), data=x) for x in zodiac.zodiac_simple_list()]
+        bot.edit_message_text("Zodiac Luck for Today",chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id,reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
+    else:
+        back = [InlineKeyboardButton('Back',data='back')]
+        bot.edit_message_text(zodiac.get_zodiac_luck(update.callback_query.data),chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(back),parse_mode=telegram.ParseMode.MARKDOWN)
     
 @thinking      
 def start(bot, update):
-    update.message.reply_text('Hi, %s!\nSend a picture contain text to begin OCR or use /help to see more 😃' %str(update.message.from_user.first_name))
+    update.message.reply_text('Hi, %s! 😃\nSend a picture contain text to begin OCR or use /help to see more' %str(update.message.from_user.first_name))
 
 @thinking      
 def help(bot, update):
@@ -133,7 +129,8 @@ def setup(webhook_url=None):
         dp.add_handler(CommandHandler("start", start))
         dp.add_handler(CommandHandler("help", help))
         dp.add_handler(CommandHandler("petrol", petrol_price))
-        dp.add_handler(CommandHandler("luck", zodiac_luck))
+        dp.add_handler(CommandHandler("luck", luck))
+        dp.add_handler(CallbackQueryHandler(handle_luck_callback))
 
         # on noncommand i.e message - echo the message on Telegram
         dp.add_handler(MessageHandler(Filters.all, get_input))
