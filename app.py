@@ -9,7 +9,8 @@ from telegram.ext import Dispatcher, CommandHandler, MessageHandler, CallbackQue
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = os.environ['BOT_TOKEN']
+#TOKEN = os.environ['BOT_TOKEN']
+TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
 HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
@@ -84,18 +85,23 @@ def petrol_price(bot,update):
 
 def luck(bot,update):
     zodiacs = zodiac.zodiac_json()
-    button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), data=x) for x in zodiac.zodiac_simple_list()]
+    button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), callback_data=x) for x in zodiac.zodiac_simple_list()]
     update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
 
-@thinking 
 def handle_luck_callback(bot,update):
-    if update.callback_query.data == 'back':
+    callback_data = update.callback_query.data
+    logger.info('callback data: %s' %callback_data)
+    if callback_data == 'back':
         zodiacs = zodiac.zodiac_json()
-        button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), data=x) for x in zodiac.zodiac_simple_list()]
+        button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), callback_data=x) for x in zodiac.zodiac_simple_list()]
         bot.edit_message_text("Zodiac Luck for Today",chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id,reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
     else:
-        back = [InlineKeyboardButton('Back',data='back')]
-        bot.edit_message_text(zodiac.get_zodiac_luck(update.callback_query.data),chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(back),parse_mode=telegram.ParseMode.MARKDOWN)
+        back = [InlineKeyboardButton('Back',callback_data='back')]
+        msg = str(zodiac.get_zodiac_luck(callback_data))
+        bot.edit_message_text(msg,chat_id=update.callback_query.message.chat_id,message_id=update.
+        callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(build_menu(back, n_cols=1)),parse_mode=ParseMode.MARKDOWN)
+
+    bot.answer_callback_query(update.callback_query.id)
     
 @thinking      
 def start(bot, update):
@@ -111,13 +117,14 @@ def echo(bot, update):
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
-
+    
 # Write your handlers here
 
 
 def setup(webhook_url=None):
     """If webhook_url is not passed, run with long-polling."""
     logging.basicConfig(level=logging.WARNING)
+    logger.info('Starting...')
     if webhook_url:
         bot = Bot(TOKEN)
         update_queue = Queue()
