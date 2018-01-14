@@ -103,7 +103,7 @@ def regex(pattern,input,result_index):
 def get_zodiac_luck(zodiac):
     url = 'http://www.xzw.com/fortune/'  + zodiac
     page = requests.get(url)
-    soup = BeautifulSoup(page.content, 'lxml')
+    soup = BeautifulSoup(page.content, 'html5lib')
     last_update = soup.h4.get_text().replace(soup.h4.small.get_text(),' - %s' %soup.h4.small.get_text())
 
     misc = [x.get_text() for x in soup.findAll('dd')[-1].findAll('li')]   
