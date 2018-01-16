@@ -9,8 +9,8 @@ from telegram.ext import Dispatcher, CommandHandler, MessageHandler, CallbackQue
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-TOKEN = os.environ['BOT_TOKEN']
-#TOKEN = '190572241:AAHr93U-50dvynk2l5SeQr25G6lvDIBReJw'
+#TOKEN = os.environ['BOT_TOKEN']
+TOKEN = '190572241:AAFHhCpgk49I-hxKkcNLKsczLUN_tGx5rqA'
 HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
@@ -89,18 +89,20 @@ def luck(bot,update):
     update.message.reply_text("Zodiac Luck for Today",reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
 
 def handle_luck_callback(bot,update):
-    callback_data = update.callback_query.data
-    logger.info('callback data: %s' %callback_data)
-    if callback_data == 'back':
+    data = update.callback_query.data
+    logger.info('callback data: %s' %data)
+    if data == 'back':
         zodiacs = zodiac.zodiac_json()
         button_list = [InlineKeyboardButton('%s %s' %(zodiacs[x]['symbol'],zodiacs[x]['zh']), callback_data=x) for x in zodiac.zodiac_simple_list()]
         bot.edit_message_text("Zodiac Luck for Today",chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id,reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3)))
+    elif '1' in data:
+        btns = [InlineKeyboardButton('Today\'s Luck',callback_data=data.split('^')[-1]),InlineKeyboardButton('Back',callback_data='back'),]
+        msg = str(zodiac.get_zodiac_luck(data.split('^')[-1],1))
+        bot.edit_message_text(msg,chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(build_menu(btns, n_cols=1)),parse_mode=ParseMode.MARKDOWN)
     else:
-        back = [InlineKeyboardButton('Back',callback_data='back')]
-        msg = str(zodiac.get_zodiac_luck(callback_data))
-        bot.edit_message_text(msg,chat_id=update.callback_query.message.chat_id,message_id=update.
-        callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(build_menu(back, n_cols=1)),parse_mode=ParseMode.MARKDOWN)
-
+        btns = [InlineKeyboardButton('Tomorrow\'s Luck',callback_data='1^'+data),InlineKeyboardButton('Back',callback_data='back')]
+        msg = str(zodiac.get_zodiac_luck(data))
+        bot.edit_message_text(msg,chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(build_menu(btns, n_cols=1)),parse_mode=ParseMode.MARKDOWN)
     bot.answer_callback_query(update.callback_query.id)
     
 @thinking      

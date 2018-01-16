@@ -100,8 +100,16 @@ def regex(pattern,input,result_index):
     result = re.findall(pattern,input)
     return result[result_index]
     
-def get_zodiac_luck(zodiac):
-    url = 'http://www.xzw.com/fortune/'  + zodiac
+def get_zodiac_luck(zodiac, opt=0):
+    if opt == 1:
+        add = "/1"
+        rate_index = 7
+    elif opt == 2:
+        add = "/2"
+    else:
+        add = ""
+        rate_index = 6
+    url = 'http://www.xzw.com/fortune/'  + zodiac + add
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html5lib')
     last_update = soup.h4.get_text().replace(soup.h4.small.get_text(),' - %s' %soup.h4.small.get_text())
@@ -118,11 +126,18 @@ def get_zodiac_luck(zodiac):
     rates = json.loads(rates.replace('cd=','').replace('name','"name"').replace('data','"data"')+']')    
     soup=soup.find('div',{'class': 'c_cont'})
     lucks = soup.findAll('p')
-
-    general= '%s^%g'  %(lucks[0].span.get_text().strip().replace(':',''), rates[0]['data'][6]/5*100) 
-    love= '%s^%g'  %(lucks[1].span.get_text().strip().replace(':',''), rates[1]['data'][6]/5*100)
-    work='%s^%g'  %(lucks[2].span.get_text().strip().replace(':',''), rates[2]['data'][6]/5*100)
-    wealth='%s^%g'  %(lucks[3].span.get_text().strip().replace(':',''), rates[3]['data'][6]/5*100)
-    health='%s^%g'  %(lucks[4].span.get_text().strip().replace(':',''), rates[4]['data'][6]/5*100)
+    
+    if opt != 2:
+        general= '%s^%g'  %(lucks[0].span.get_text().strip().replace(':',''), rates[0]['data'][rate_index]/5*100) 
+        love= '%s^%g'  %(lucks[1].span.get_text().strip().replace(':',''), rates[1]['data'][rate_index]/5*100)
+        work='%s^%g'  %(lucks[2].span.get_text().strip().replace(':',''), rates[2]['data'][rate_index]/5*100)
+        wealth='%s^%g'  %(lucks[3].span.get_text().strip().replace(':',''), rates[3]['data'][rate_index]/5*100)
+        health='%s^%g'  %(lucks[4].span.get_text().strip().replace(':',''), rates[4]['data'][rate_index]/5*100)
+    else:
+        general= '%s^%g'  %(lucks[0].span.get_text().strip().replace(':',''), sum([x/5*100 for x in rates[0]['data']])) 
+        love= '%s^%g'  %(lucks[1].span.get_text().strip().replace(':',''), sum([x/5*100 for x in rates[1]['data']])) 
+        work='%s^%g'  %(lucks[2].span.get_text().strip().replace(':',''), sum([x/5*100 for x in rates[2]['data']])) 
+        wealth='%s^%g'  %(lucks[3].span.get_text().strip().replace(':',''), sum([x/5*100 for x in rates[3]['data']])) 
+        health='%s^%g'  %(lucks[4].span.get_text().strip().replace(':',''), sum([x/5*100 for x in rates[4]['data']])) 
 
     return ZodiacLuck(general,love,work,wealth,health,color,num,match,desc,last_update)
