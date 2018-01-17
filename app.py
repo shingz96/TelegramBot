@@ -80,7 +80,7 @@ def get_petrol_price():
         if i<2:
             br = '\n'
         details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br        
-    return 'This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(last_update,details)
+    return 'This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(info[0],details)
     
 @thinking        
 def petrol_price(bot,update):
