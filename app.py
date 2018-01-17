@@ -9,8 +9,8 @@ from telegram.ext import Dispatcher, CommandHandler, MessageHandler, CallbackQue
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-#TOKEN = os.environ['BOT_TOKEN']
-TOKEN = '190572241:AAFHhCpgk49I-hxKkcNLKsczLUN_tGx5rqA'
+TOKEN = os.environ['BOT_TOKEN']
+#TOKEN = '190572241:AAFHhCpgk49I-hxKkcNLKsczLUN_tGx5rqA'
 HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
