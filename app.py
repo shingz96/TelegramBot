@@ -64,8 +64,7 @@ def get_input(bot, update):
     else:
         update.message.reply_text(HELP_MSG)
 
-@thinking        
-def petrol_price(bot,update):
+def get_petrol_price():
     info = petrol.get_petrol_info()
     details = ''
     for i in range(0,len(info[1])):
@@ -80,8 +79,17 @@ def petrol_price(bot,update):
         br = ''
         if i<2:
             br = '\n'
-        details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br
-    update.message.reply_text('This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(info[0],details))
+        details = details + '%s : %s (%s)' %(info[1][i].type,info[1][i].price,diff) + br        
+    return 'This is the Latest ⛽️ Petrol Price %s.\n\n%s' %(last_update,details)
+    
+@thinking        
+def petrol_price(bot,update):
+    btns = [InlineKeyboardButton('Refresh',callback_data='petrol')]
+    update.message.reply_text(get_petrol_price(),reply_markup = InlineKeyboardMarkup(build_menu(btns, n_cols=1)))
+
+def handle_petrol_callback(bot,update):
+    btns = [InlineKeyboardButton('Refresh',callback_data='petrol')]
+    bot.edit_message_text(get_petrol_price(),chat_id=update.callback_query.message.chat_id,message_id=update.callback_query.message.message_id, reply_markup = InlineKeyboardMarkup(build_menu(btns, n_cols=1)),parse_mode=ParseMode.MARKDOWN)    
 
 def luck(bot,update):
     zodiacs = zodiac.zodiac_json()
@@ -139,7 +147,8 @@ def setup(webhook_url=None):
         dp.add_handler(CommandHandler("help", help))
         dp.add_handler(CommandHandler("petrol", petrol_price))
         dp.add_handler(CommandHandler("luck", luck))
-        dp.add_handler(CallbackQueryHandler(handle_luck_callback))
+        dp.add_handler(CallbackQueryHandler(handle_luck_callback,pattern = r'(?!petrol)(.*)'))
+        dp.add_handler(CallbackQueryHandler(handle_petrol_callback,pattern = r'petrol'))
 
         # on noncommand i.e message - echo the message on Telegram
         dp.add_handler(MessageHandler(Filters.all, get_input))
