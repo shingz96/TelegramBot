@@ -141,7 +141,8 @@ def setup(webhook_url=None):
     logging.basicConfig(level=logging.WARNING)
     logger.info('Starting...')
     
-    schedule.every().wednesday.at("18:15").do(updatePetrolPrice)
+    #schedule.every().wednesday.at("18:15").do(updatePetrolPrice) #M'sia time (UTC +8)
+    schedule.every().thursday.at("02:15").do(updatePetrolPrice) #UTC time (UTC + 0)
     
     if webhook_url:
         bot = Bot(TOKEN)
