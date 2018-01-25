@@ -1,4 +1,5 @@
 import logging,os,requests,json,petrol,zodiac
+import schedule
 from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
@@ -127,6 +128,10 @@ def echo(bot, update):
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
+
+def updatePetrolPrice():
+    logger.info('Running schedule job...')
+    bot.sendMessage(chat_id='@msiapetrol', text=get_petrol_price())    
     
 # Write your handlers here
 
@@ -135,6 +140,9 @@ def setup(webhook_url=None):
     """If webhook_url is not passed, run with long-polling."""
     logging.basicConfig(level=logging.WARNING)
     logger.info('Starting...')
+    
+    schedule.every().wednesday.at("18:15").do(updatePetrolPrice)
+    
     if webhook_url:
         bot = Bot(TOKEN)
         update_queue = Queue()
