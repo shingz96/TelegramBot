@@ -1,4 +1,5 @@
-import logging,os,requests,json,petrol,zodiac
+import logging,os,time,requests,json
+import petrol,zodiac
 import schedule
 from functools import wraps
 from ocr import OCRSpace
@@ -129,9 +130,14 @@ def echo(bot, update):
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
 
-def updatePetrolPrice():
+def updatePetrolPrice(bot):
     logger.info('Running schedule job...')
     bot.sendMessage(chat_id='@msiapetrol', text=get_petrol_price())    
+
+def petrol_schedule():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
     
 # Write your handlers here
 
@@ -142,7 +148,10 @@ def setup(webhook_url=None):
     logger.info('Starting...')
     
     #schedule.every().wednesday.at("18:15").do(updatePetrolPrice) #M'sia time (UTC +8)
-    schedule.every().thursday.at("02:15").do(updatePetrolPrice) #UTC time (UTC + 0)
+    sbot = Bot(TOKEN)
+    schedule.every().thursday.at("02:15").do(updatePetrolPrice, sbot) #UTC time (UTC + 0)
+    thread = Thread(target=petrol_schedule, name='petrol-schedule')
+    thread.start()
     
     if webhook_url:
         bot = Bot(TOKEN)
