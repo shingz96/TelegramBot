@@ -1,6 +1,5 @@
 import logging,os,time,requests,json
 import petrol,zodiac
-import schedule
 from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
@@ -13,7 +12,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 TOKEN = os.environ['BOT_TOKEN']
-#TOKEN = '190572241:AAFHhCpgk49I-hxKkcNLKsczLUN_tGx5rqA'
 HELP_MSG = '🌄 Send a picture to begin OCR\n⛽️ /petrol Get Latest 🇲🇾 Petrol Price\n🔯 /luck Get Today Luck (星座运势)'
 
 def is_image(url):
@@ -162,7 +160,7 @@ def schedule(func,bot):
         sec = (next_thursday.replace(hour=2, minute=15, second=0, microsecond=0) - now).total_seconds()    
         m, s = divmod(sec, 60)
         h, m = divmod(m, 60)
-        logger.info('Schedule to run at %s' %( ( datetime.now() + timedelta(seconds=sec) ).strftime("%Y-%m-%d %H:%M") ))
+        logger.info('Schedule to run at %s' %( ( datetime.now() + timedelta(seconds=sec) ).strftime("%Y-%m-%d %H:%M %a") ))
         logger.info("Wait %d hr : %02d min : %02d s to run" % (h, m, s))
         time.sleep(sec)
         func(bot)
