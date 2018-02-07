@@ -152,12 +152,12 @@ def next_weekday(date, weekday):
 def schedule(func,bot):
     logger.info('Thread started...')
     while True:
-        #get seconds left until next Thursday(3) 02:15 (UTF +0)
+        #get seconds left until next Tuesday(1) 10:15 (UTC +0) = M'sia Time Wednesday 16:00
         now = datetime.now()
-        next_thursday = now
-        if now.weekday() == 3 and now.hour >=2 and now.minute >= 15: 
-            next_thursday = next_weekday(now, 3) # 0 = Mon, 1 = Tue,... 6 = Sun
-        sec = (next_thursday.replace(hour=2, minute=15, second=0, microsecond=0) - now).total_seconds()    
+        next_day = now
+        if now.weekday() == 1 and now.hour >=10 and now.minute >= 15: 
+            next_day = next_weekday(now, 1) # 0 = Mon, 1 = Tue,... 6 = Sun
+        sec = (next_thursday.replace(hour=10, minute=15, second=0, microsecond=0) - now).total_seconds()    
         m, s = divmod(sec, 60)
         h, m = divmod(m, 60)
         logger.info('Schedule to run at %s' %( ( datetime.now() + timedelta(seconds=sec) ).strftime("%Y-%m-%d %H:%M %a") ))
