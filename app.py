@@ -4,6 +4,7 @@ import schedule
 from functools import wraps
 from ocr import OCRSpace
 from queue import Queue
+from datetime import datetime, timedelta
 from threading import Thread
 from telegram import Bot, ChatAction, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from telegram.ext import Dispatcher, CommandHandler, MessageHandler, CallbackQueryHandler, Updater, Filters
@@ -128,16 +129,43 @@ def echo(bot, update):
     update.message.reply_text(update.message.text)
 
 def error(bot, update, error):
-    logger.warning('Update "%s" caused error "%s"' % (update, error))
+    logger.warning('Update "%s" caused error "%s"' % (update, error))  
 
+def waitForSec(sec):
+    def decor(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            time.sleep(sec)
+            return func(*args, **kwargs)
+        return wrapper
+    return decor
+
+@waitForSec(1)    
 def updatePetrolPrice(bot):
     logger.info('Running schedule job...')
     bot.sendMessage(chat_id='@msiapetrol', text=get_petrol_price())    
 
-def petrol_schedule():
+def next_weekday(date, weekday):
+    days_ahead = weekday - date.weekday()
+    if days_ahead <= 0: # Target day already happened this week
+        days_ahead += 7
+    return date + timedelta(days=days_ahead)        
+        
+def schedule(func,bot):
+    logger.info('Thread started...')
     while True:
-        schedule.run_pending()
-        time.sleep(1)
+        #get seconds left until next Thursday(3) 02:15 (UTF +0)
+        now = datetime.now()
+        next_thursday = now
+        if now.weekday() == 3 and now.hour >=2 and now.minute >= 15: 
+            next_thursday = next_weekday(now, 3) # 0 = Mon, 1 = Tue,... 6 = Sun
+        sec = (next_thursday.replace(hour=2, minute=15, second=0, microsecond=0) - now).total_seconds()    
+        m, s = divmod(sec, 60)
+        h, m = divmod(m, 60)
+        logger.info('Schedule to run at %s' %( ( datetime.now() + timedelta(seconds=sec) ).strftime("%Y-%m-%d %H:%M") ))
+        logger.info("Wait %d hr : %02d min : %02d s to run" % (h, m, s))
+        time.sleep(sec)
+        func(bot)
     
 # Write your handlers here
 
@@ -148,10 +176,11 @@ def setup(webhook_url=None):
     logger.info('Starting...')
     
     #schedule.every().wednesday.at("18:15").do(updatePetrolPrice) #M'sia time (UTC +8)
+    #schedule.every().thursday.at("02:15").do(updatePetrolPrice, sbot) #UTC time (UTC + 0)
     sbot = Bot(TOKEN)
-    schedule.every().thursday.at("02:15").do(updatePetrolPrice, sbot) #UTC time (UTC + 0)
-    thread = Thread(target=petrol_schedule, name='petrol-schedule')
+    thread = Thread(target=schedule, args=(updatePetrolPrice,sbot,), name='petrol-schedule')
     thread.start()
+    
     
     if webhook_url:
         bot = Bot(TOKEN)
