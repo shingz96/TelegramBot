@@ -153,9 +153,9 @@ def schedule(func,bot):
     logger.info('Thread started...')
     while True:
         try:
-            #get seconds left until next Wednesday(2) 14:15 (UTC +0) = M'sia (UTC+8) Time Wednesday 22:00
+            #get seconds left until next Friday(4) 14:15 (UTC +0) = M'sia (UTC+8) Time Wednesday 22:00
             now = datetime.now()
-            next_day = next_weekday(now, 2) # 0 = Mon, 1 = Tue,... 6 = Sun
+            next_day = next_weekday(now, 4) # 0 = Mon, 1 = Tue,... 6 = Sun
             if now.weekday() == 2 and now.hour <=14 and now.minute < 1: 
                 next_day = now
             sec = (next_day.replace(hour=14, minute=0, second=0, microsecond=0) - now).total_seconds()    
